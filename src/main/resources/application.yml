@@ -1,0 +1,77 @@
+azure_blob_store_container_name: producer
+
+kafka:
+  bootstrap-servers: 9092
+  notification:
+    topic: eacloud
+  retry:
+    topic: retry
+
+
+spring:
+  retry:
+    maximum:
+      attempts: 3
+  kafka:
+    listener:
+      ack-mode: manual-immediate
+    consumer:      
+      auto-offset-reset: earliest
+      fetch-max-wait: 3600
+      enable-auto-commit: false
+      group-id: test-consumer-group
+      max-poll-records: 20
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        partition-assignment-strategy: org.apache.kafka.clients.consumer.RoundRobinAssignor
+        max:
+          message:
+            bytes: 1048576
+    producer:
+      delete:
+        topic:
+          enable: true
+      properties:
+        acks: all
+        retries: 5
+        enable:
+          idempotence: true
+        max:
+          in:
+            flight:
+              requests:
+                per:
+                  connection: 2
+
+ # datasource:
+
+  #  url: jdbc:mysql://localhost:3306/events_db
+   # username: root
+    #password: root
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    #hikari:
+     # maximumPoolSize: 50
+      #minimumIdle: 5
+      #idleTimeout: 120000
+    #jpa:
+     # database_platform: org.hibernate.dialect.MySQL5Dialect
+      #properties:
+       # hibernate:
+        #  dialect: org.hibernate.dialect.MySQL5Dialect
+         # show_sql: true
+      #generate-ddl: true
+      #hibernate:
+       # ddl-auto: update
+
+azure:
+  storage:
+    account-name: claimscheckpayloads
+    account-key: 8OD1vjEqe7ux9m7UiBWImDMfmsWfu52rjkdsHoQ6gUrDyNThUt9U7UDeeEZWssp/IaVWv/CTXv8spi0Kug9gpA==
+    blob-endpoint: https://claimscheckpayloads.core.windows.net
+    endpoint-suffix: core.windows.net
+    container-name: ${azure_blob_store_container_name}
+
+events-payload:
+  file-name: docbroker_response
+  max-bytes: 1048576
