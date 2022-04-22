@@ -22,19 +22,19 @@ public class KafkaConsumer<T extends Serializable> {
 
 	private static final Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
 
-	@KafkaListener(topics = {"${kafka.notification.topic}"}, containerFactory ="kafkaListenerContainerFactory")
+	@KafkaListener(topics = {"${kafka.notification.topic}"})
 	public void listen(ConsumerRecord<String, String> consumerRecord,
-					   @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition,
-					   @Header(value = "isLargePayload", required = false) String isLargePayload, Acknowledgment ack)
+					   @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition
+					  , Acknowledgment ack)
 	{
 		logger.info("partition: {}", partition);
-		logger.info("largePayload: {}", isLargePayload);
+
 		try {
             if (Objects.nonNull(consumerRecord.value()))
 			{
-				T payload = azureBlobService.readPayloadFromBlob(consumerRecord.value());
+				//T payload = azureBlobService.readPayloadFromBlob(consumerRecord.value());
 				//T payload = azureBlobService.getPayloadFromBlob((T)consumerRecord.value(), isLargePayload);
-				logger.info("Kafka payload: {}", payload);
+				logger.info("Kafka payload: {}", consumerRecord.value());
 				/*EventNotificationsAdapterModel eventModel = (EventNotificationsAdapterModel) payload;
 				var jsonPayload = new JsonConverter().convertToJson(eventModel.getResponse());
 				logger.info("JSON payload after conversion: {}", jsonPayload);*/

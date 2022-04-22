@@ -40,13 +40,12 @@ public class KafkaProducer<T extends Serializable> {
 	@Autowired
 	KafkaProducerService<T> kafkaProducerService;
 
-	@RetryHandler
-	@Retryable(value = MessagePublishException.class, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
+//	@RetryHandler
+//	@Retryable(value = MessagePublishException.class, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
 	public void sendMessage(T message, String docBrokerCorrelationId) {
 		logger.info("Publish message: {}", message);
 		try {
 			ProducerRecord<String, T> producerRecord = new ProducerRecord<>(producerTopic, message);
-            int num = 5/0;
 			messagePublishHandler.publishOnTopic((ProducerRecord<String, T>) producerRecord);
 		}
 		catch(Exception ex)
@@ -58,7 +57,7 @@ public class KafkaProducer<T extends Serializable> {
 	}
 
 
-	@Retryable(value = MessagePublishException.class, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
+//	@Retryable(value = MessagePublishException.class, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
 	public void sendMessageToKafka(T message, String docBrokerCorrelationId) {
 		logger.info("Publish message: {}", message);
 		try {
@@ -72,20 +71,23 @@ public class KafkaProducer<T extends Serializable> {
 		}
 	}
 
-	@Retryable(value = MessagePublishException.class, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
+//	@Retryable(value = MessagePublishException.class, maxAttemptsExpression = "${spring.retry.maximum.attempts}")
 	public void publishMessageToKafka(T message, String docBrokerCorrelationId) throws URISyntaxException, InvalidKeyException, StorageException {
 		logger.info("Publish message: {}", message);
 		String payloadReference = null;
 		try {
+			//int i = 3/0;
 			//payloadReference = azureBlobService.writePayloadToBlob(message);
-			//ProducerRecord<String, String> producerRecord = new ProducerRecord<>(producerTopic, payloadReference);
-			var producerRecord = kafkaProducerService.getProducerRecord(message);
+			ProducerRecord<String, T> producerRecord = new ProducerRecord<>(producerTopic, message);
+			//var producerRecord = kafkaProducerService.getProducerRecord(message);
 			messagePublishHandler.publishOnTopic((ProducerRecord<String, T>) producerRecord);
 		}
 		catch(Exception ex)
 		{
+			//logger.info("Retry count: {}", RetrySynchronizationManager.getContext().getRetryCount());
 			logger.error("Exception: ", ex);
-			azureBlobService.deletePayloadFromBlob(payloadReference);
+
+//			azureBlobService.deletePayloadFromBlob(payloadReference);
 			throw new MessagePublishException(ex.getMessage());
 		}
 	}
